@@ -154,6 +154,8 @@ def parse_one_waist_json(targeting):
             targets += ["Employer", elem["employer_name"]]
         elif elem["__typename"] ==  "WAISTUIRelationshipType":
             targets += ["Relationship Status", elem["relationship_status"]]
+        elif elem["__typename"] ==  "WAISTUIJobTitleType":
+            targets += ["Job Title", elem["job_title"]]
         else:
             print("Unknown WAIST type {}".format(elem["__typename"]))
 
