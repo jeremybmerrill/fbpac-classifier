@@ -1,0 +1,149 @@
+with_and_without_paid_for_by.txt
+
+with paid-for-by deleted
+============ data/en-US/ =============
+num seeds: 3795
+num unique samples: 103795
+final size of training data: 138168
+              precision    recall  f1-score   support
+
+         0.0       0.98      0.94      0.96      7628
+         1.0       0.86      0.96      0.91      2752
+
+   micro avg       0.95      0.95      0.95     10380
+   macro avg       0.92      0.95      0.94     10380
+weighted avg       0.95      0.95      0.95     10380
+
+============ data/en-US/ =============
+num seeds: 3795
+num unique samples: 103795
+final size of training data: 160480
+              precision    recall  f1-score   support
+
+         0.0       0.99      0.96      0.97      8894
+         1.0       0.81      0.92      0.86      1486
+
+   micro avg       0.96      0.96      0.96     10380
+   macro avg       0.90      0.94      0.92     10380
+weighted avg       0.96      0.96      0.96     10380
+
+
+
+
+
+with paid-for-by left in.
+============ data/en-US/ =============
+num seeds: 3795
+num unique samples: 103795
+final size of training data: 174826
+              precision    recall  f1-score   support
+
+         0.0       0.99      0.97      0.98      9740
+         1.0       0.64      0.85      0.73       640
+
+   micro avg       0.96      0.96      0.96     10380
+   macro avg       0.81      0.91      0.85     10380
+weighted avg       0.97      0.96      0.96     10380
+
+Saved model data/en-US/classifier.dill
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+with paid for by deleted
+============ data/en-US/ =============
+num seeds: 3795
+num unique samples: 103795
+final size of training data: 171548
+              precision    recall  f1-score   support
+
+         0.0       0.99      0.97      0.98      9508
+         1.0       0.71      0.89      0.79       872
+
+   micro avg       0.96      0.96      0.96     10380
+   macro avg       0.85      0.93      0.89     10380
+weighted avg       0.97      0.96      0.96     10380
+
+Saved model data/en-US/classifier.dill
+============ data/en-US/ =============
+num seeds: 3795
+num unique samples: 103795
+final size of training data: 163276
+              precision    recall  f1-score   support
+
+         0.0       0.99      0.97      0.98      9107
+         1.0       0.80      0.91      0.85      1273
+
+   micro avg       0.96      0.96      0.96     10380
+   macro avg       0.89      0.94      0.91     10380
+weighted avg       0.96      0.96      0.96     10380
+
+
+
+
+04:31:58 {master} ~/code/fbpac-classifier$ DATABASE_URL="postgres:///facebook_ads2" python classify build --lang en-US
+
+
+normal (with paid for by left in)
+============ data/en-US/ =============
+num seeds: 3795
+num unique samples: 103795
+final size of training data: 171574
+              precision    recall  f1-score   support
+
+         0.0       0.99      0.96      0.98      9495
+         1.0       0.70      0.89      0.79       885
+
+   micro avg       0.96      0.96      0.96     10380
+   macro avg       0.85      0.93      0.88     10380
+weighted avg       0.97      0.96      0.96     10380
+
+Saved model data/en-US/classifier.dill
+
+
+it looks like deleting paid for by helps (but maybe it's just randomness and it does very little?)
