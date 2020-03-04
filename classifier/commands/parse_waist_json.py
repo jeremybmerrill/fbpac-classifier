@@ -16,7 +16,7 @@ GENDER_CROSSWALK = {
     "MALE": "men",
     "FEMALE": "women"
 }
-
+TABLE_NAME = "ads"
 
 @click.command("parse_waist_json")
 # @click.option("--newest/--every",
@@ -29,14 +29,14 @@ def parse_waist_json(ctx):
     """
 
     # takes 8s locally
-    query = "select * from ads where targets = '[]' and targeting is not null and targeting ilike '{%'"
+    query = "select * from " + TABLE_NAME + " where targets = '[]' and targeting is not null and targeting ilike '{%'"
 
     total = "select count(*) as length from ({}) as t1;"
     length = DB.query(total.format(query))[0]["length"]
     records = DB.query(query)
     print("found {} ads".format(length))
     updates = []
-    query = "update ads set targets=:targets where id=:id"
+    query = "update " + TABLE_NAME + " set targets=:targets where id=:id"
     idx = 0
     for record in records:
         idx += 1
@@ -167,4 +167,4 @@ def parse_one_waist_json(targeting):
             # WAISTUIRelationshipType
             # WAISTUIJobTitleType
 
-    return [t for t in targets if t]
+    return [{"target": t[0], "segment": t[1]} for t in targets if t]
