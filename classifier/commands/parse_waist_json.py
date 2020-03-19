@@ -16,7 +16,7 @@ GENDER_CROSSWALK = {
     "MALE": "men",
     "FEMALE": "women"
 }
-TABLE_NAME = "ads"
+TABLE_NAME = "fbpac_ads"
 
 @click.command("parse_waist_json")
 # @click.option("--newest/--every",
@@ -138,6 +138,8 @@ def parse_one_waist_json(targeting):
         elif elem["__typename"] ==  "WAISTUIInterestsType":
             targets += [["Interest", i["name"]] for i in elem["interests"]]
         elif elem["__typename"] ==  "WAISTUIBCTType": # thus far, likely engagement with conservative content
+            if 'multicultural affinity' in elem["desc"]:
+                elem["name"] = "Multicultural affinity: " + elem["name"] + "." # hotfix for multicultural affinity not showing up in the BCT name.
             targets += [["Segment", elem["name"]]]
         elif elem["__typename"] ==  "WAISTUIEduStatusType":
             targets += [["Education", elem["edu_status"]], ["Segment", "Bachelor's degree" if elem["edu_status"] == "EDU_COLLEGE_ALUMNUS" else elem["edu_status"] ]]
