@@ -7,13 +7,14 @@ import os
 from bs4 import BeautifulSoup
 from imblearn.over_sampling import SMOTE
 import records
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sqlalchemy.sql import text
+import re
 
 DB = records.Database()
 CLASSIFIER = "MultinomialNB"
@@ -53,6 +54,7 @@ def get_classifiers():
     """
     return {
         "MultinomialNB": MultinomialNB(),
+        "GaussianNB": GaussianNB(),
         "LogisticRegression": LogisticRegression(),
         "RandomForest": RandomForestClassifier()
     }
@@ -95,7 +97,9 @@ def get_html_text(html):
     """
     if html:
         doc = BeautifulSoup(html, "html.parser")
-        return doc.get_text(" ")
+        text = doc.get_text(" ")
+        text = re.sub(r"Paid for by .*?· ", '', text) # removes Paid for by because it presumably confuses the model! (which learns that it's a strong indicator of politicalness, so it learns less about *actual* indicators of politicalness)
+        return text
 
     return ""
 
