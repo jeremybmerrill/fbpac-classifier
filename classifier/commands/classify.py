@@ -19,6 +19,8 @@ def classify(ctx, newest, lang):
     """
     classifiers = dict()
     for (directory, conf) in confs(ctx.obj["base"]):
+        if lang and conf["language"] != lang:
+            continue
         with open(classifier_path(directory), 'rb') as classy:
             classifiers[conf["language"]] = {
                 "classifier": dill.load(classy),
@@ -27,7 +29,7 @@ def classify(ctx, newest, lang):
 
     if newest:
         print("Running newest")
-        query = "select * from ads where political_probability = 0"
+        query = "select * from fbpac_ads where political_probability = 0"
         if lang:
             query = query + " and lang = '{}'".format(lang)
         else:
@@ -37,7 +39,7 @@ def classify(ctx, newest, lang):
             query = query + " and lang in ({})".format(langs)
     else:
         print("Running every")
-        query = "select * from ads"
+        query = "select * from fbpac_ads"
         if lang:
             query = query + " where lang = '{}'".format(lang)
 
@@ -46,7 +48,7 @@ def classify(ctx, newest, lang):
     records = DB.query(query)
     print("found {} ads".format(length))
     updates = []
-    query = "update ads set political_probability=:probability where id=:id"
+    query = "update fbpac_ads set political_probability=:probability where id=:id"
     idx = 0
     for record in records:
         idx += 1

@@ -8,6 +8,4 @@ dill==0.2.7.1
 click
 records
 spacy
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.0.0/en_core_web_sm-2.0.0.tar.gz#en-core-web-sm
 boto3
-./en_fbpac3label-2.0.0.tar.gz
