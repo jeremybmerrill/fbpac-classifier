@@ -9,3 +9,4 @@ click
 records
 spacy
 boto3
+requests

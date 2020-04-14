@@ -6,7 +6,8 @@ import dill
 from classifier.utilities import (confs, DB)
 import json
 import spacy
-
+import requests
+from os import environ
 # DATABASE_URL="postgres:///facebook_ads" pipenv run ./classify parse_waist_json --every
 
 
@@ -75,6 +76,8 @@ def parse_waist_json(ctx):
 
     if updates and True:
         DB.bulk_query(query, updates)
+    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"parsed WAIST JSON from {idx} ads"}), headers={"Content-Type": "application/json"})
+
 
 
 def parse_one_waist_json(targeting):
