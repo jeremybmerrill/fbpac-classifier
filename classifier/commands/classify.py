@@ -75,8 +75,8 @@ def classify(ctx, newest, lang):
                 print("refusing to downgrade probability of ad {}".format(record["id"]))
 
             updates.append(update)
-            out = "Classified {pid[id]} ({info[idx]} of {info[length]}) with {pid[probability]}"
-            print(out.format(pid=update, info={"length": length, "idx": idx}))
+            # out = "Classified {pid[id]} ({info[idx]} of {info[length]}) with {pid[probability]}"
+            # print(out.format(pid=update, info={"length": length, "idx": idx}))
 
             if len(updates) >= 100:
                 DB.bulk_query(query, updates)
@@ -84,4 +84,4 @@ def classify(ctx, newest, lang):
 
     if updates:
         DB.bulk_query(query, updates)
-    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"classified {idx} ads, of which {political_count} were political"}), headers={"Content-Type": "application/json"})
+    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"(1/6): classified {idx} ads, of which {political_count} were political"}), headers={"Content-Type": "application/json"})

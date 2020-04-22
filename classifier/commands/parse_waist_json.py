@@ -76,8 +76,12 @@ def parse_waist_json(ctx):
 
     if updates and True:
         DB.bulk_query(query, updates)
-    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"parsed WAIST JSON from {idx} ads"}), headers={"Content-Type": "application/json"})
+    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"(2/6): parsed WAIST JSON from {idx} ads"}), headers={"Content-Type": "application/json"})
 
+
+# I've now actually seen these.
+# Unknown WAIST type WAISTUIDPAType
+# Unknown WAIST type WAISTUIActionableInsightsType
 
 
 def parse_one_waist_json(targeting):
@@ -89,10 +93,19 @@ def parse_one_waist_json(targeting):
             elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_PAGE":
                 targets += [["Activity on the Facebook Family", "fb page"]] # https://www.facebook.com/business/help/221146184973131?id=2469097953376494
             elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_IG":
-                targets += [["Activity on the Facebook Family", "instagram"]] # https://www.facebook.com/business/help/221146184973131?id=2469097953376494
+                targets += [["Activity on the Facebook Family", "instagram business page"]] # https://www.facebook.com/business/help/214981095688584
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_LEAD_GEN":
+                targets += [["Activity on the Facebook Family", "interacted with lead generation ads"]]
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_EVENT":
+                targets += [["Activity on the Facebook Family", "event"]]
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_CANVAS":
+                targets += [["Activity on the Facebook Family", "interacted with a 'Instant Experience' ad"]] # https://www.facebook.com/business/help/1056178197835021?id=2469097953376494
             elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_LOOKALIKE":
                 targets += [["Retargeting", "people who may be similar to their customers"]]
-            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_DATAFILE":  # new to Python
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_MOBILE_APP":
+                targets += [["Website", "activity in a non-Facebook mobile app"]]
+                # mobile_ca_data app_name
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_DATAFILE":
                 targets += [["List", ""]]
             elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_VIDEO":  # new to Python
                 targets += [["Activity on the Facebook Family", "video"]] # https://www.facebook.com/business/help/221146184973131?id=2469097953376494
@@ -100,15 +113,15 @@ def parse_one_waist_json(targeting):
                 print("UNKNOWN waist UI type: {}".format(elem["waist_ui_type"]))
                 # haven't seen these yet. # unimplemented
                 # CUSTOM_AUDIENCES_OFFLINE
-                # CUSTOM_AUDIENCES_MOBILE_APP
-                # CUSTOM_AUDIENCES_ENGAGEMENT_LEAD_GEN
-                # CUSTOM_AUDIENCES_ENGAGEMENT_CANVAS
-                # CUSTOM_AUDIENCES_ENGAGEMENT_EVENT
                 # CUSTOM_AUDIENCES_UNRESOLVED
                 # CUSTOM_AUDIENCES_STORE_VISITS
 
             if "dfca_data" in elem: 
                 targets += [["Audience Owner", elem["dfca_data"]["ca_owner_name"]]]
+            if "mobile_ca_data" in elem: 
+                targets += [["Mobile App", elem["mobile_ca_data"]["app_name"]]]
+            if "website_ca_data" in elem and elem["website_ca_data"].get("website_url", None): 
+                targets += [["Mobile App", elem["website_ca_data"]["website_url"]]]
 
         elif elem["__typename"] ==  "WAISTUIAgeGenderType":
             # {"__typename"=>"WAISTUIAgeGenderType", "waist_ui_type"=>"AGE_GENDER", "age_min"=>23, "age_max"=>53, "gender"=>"ANY",  "id"=>"V0FJU1RVSUFnZUdlbmRlclR5cGU6MjM1Mw==", "serialized_data"=>"{\"age_min\":23,\"age_max\":53,\"gender\":null}",}
@@ -165,7 +178,7 @@ def parse_one_waist_json(targeting):
             print("Unknown WAIST type {}".format(elem["__typename"]))
 
             # no examples of these yet #unimplemented
-            # WAISTUIActionableInsightsType
+            # WAISTUIActionableInsightsType # appears to be stuff like "people who might be switching phone plans"
             # WAISTUIBrandedContentWithPageType
             # WAISTUICollaborativeAdType
             # WAISTUIDPAType
