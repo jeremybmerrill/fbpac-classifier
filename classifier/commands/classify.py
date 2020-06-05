@@ -10,6 +10,7 @@ import csv
 import json
 import requests
 from os import environ
+from datetime import datetime
 
 @click.command("classify")
 @click.option("--newest/--every",
@@ -21,6 +22,7 @@ def classify(ctx, newest, lang):
     """
     Classify the ads in the database at $DATABASE_URL.
     """
+    start_time = datetime.now()
     classifiers = dict()
     for (directory, conf) in confs(ctx.obj["base"]):
         if lang and conf["language"] != lang:
@@ -84,4 +86,9 @@ def classify(ctx, newest, lang):
 
     if updates:
         DB.bulk_query(query, updates)
-    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"(1/6): classified {idx} ads, of which {political_count} were political"}), headers={"Content-Type": "application/json"})
+
+
+    job_query = f"insert into job_runs(start_time, end_time, success, job_id, created_at, updated_at) select '{start_time}' start_time, now() end_time, true success, jobs.id job_id, now() created_at, now() updated_at from jobs where name = 'fbpac-classifier';"
+    DB.query(job_query)
+        
+    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"classified {idx} ads, of which {political_count} were political"}), headers={"Content-Type": "application/json"})

@@ -9,6 +9,7 @@ import spacy
 import requests
 from os import environ
 # DATABASE_URL="postgres:///facebook_ads" pipenv run ./classify parse_waist_json --every
+from datetime import datetime
 
 
 AGE_OFFSET = 12 # Facebook seems to reflect ages as the age in years minus twelve. So, 65 is reflected in JSON as 53. Weird.
@@ -30,6 +31,7 @@ def parse_waist_json(ctx):
     """
 
     # takes 8s locally
+    start_time = datetime.now()    
     query = "select * from " + TABLE_NAME + " where targets = '[]' and targeting is not null and targeting ilike '{%'"
 
     total = "select count(*) as length from ({}) as t1;"
@@ -76,7 +78,10 @@ def parse_waist_json(ctx):
 
     if updates and True:
         DB.bulk_query(query, updates)
-    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"(2/6): parsed WAIST JSON from {idx} ads"}), headers={"Content-Type": "application/json"})
+
+    job_query = f"insert into job_runs(start_time, end_time, success, job_id, created_at, updated_at) select '{start_time}' start_time, now() end_time, true success, jobs.id job_id, now() created_at, now() updated_at from jobs where name = 'fbpac-waist-parser';"
+    DB.query(job_query)
+    # requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"(2/6): parsed WAIST JSON from {idx} ads"}), headers={"Content-Type": "application/json"})
 
 
 # I've now actually seen these.
