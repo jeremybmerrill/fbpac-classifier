@@ -34,6 +34,11 @@ def parse_waist_json(ctx):
     start_time = datetime.now()    
     query = "select * from " + TABLE_NAME + " where targets = '[]' and targeting is not null and targeting ilike '{%'"
 
+# to fix something, 
+# update fbpac_ads set targets = '[]' where targeting like '%WAISTUIWorkEmployerType%';
+# update fbpac_ads set targets = '[]' where targeting like '%WAISTUIRelationshipType%';
+# update fbpac_ads set targets = '[]' where targeting like '%WAISTUIJobTitleType%';
+
     total = "select count(*) as length from ({}) as t1;"
     length = DB.query(total.format(query))[0]["length"]
     records = DB.query(query)
@@ -114,19 +119,26 @@ def parse_one_waist_json(targeting):
                 targets += [["List", ""]]
             elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_ENGAGEMENT_VIDEO":  # new to Python
                 targets += [["Activity on the Facebook Family", "video"]] # https://www.facebook.com/business/help/221146184973131?id=2469097953376494
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_STORE_VISITS":  # new to Python
+                targets += [["Offline data", "store visits"]] 
+            elif elem["waist_ui_type"] == "CUSTOM_AUDIENCES_OFFLINE":  # new to Python
+                targets += [["Offline data", "other"]] 
+
             else:
                 print("UNKNOWN waist UI type: {}".format(elem["waist_ui_type"]))
+                print(elem)
                 # haven't seen these yet. # unimplemented
                 # CUSTOM_AUDIENCES_OFFLINE
                 # CUSTOM_AUDIENCES_UNRESOLVED
-                # CUSTOM_AUDIENCES_STORE_VISITS
 
             if "dfca_data" in elem: 
                 targets += [["Audience Owner", elem["dfca_data"]["ca_owner_name"]]]
+                targets += [["Custom Audience Match Key", ', '.join(sorted(elem["dfca_data"]["match_keys"]))]]
             if "mobile_ca_data" in elem: 
                 targets += [["Mobile App", elem["mobile_ca_data"]["app_name"]]]
             if "website_ca_data" in elem and elem["website_ca_data"].get("website_url", None): 
                 targets += [["Mobile App", elem["website_ca_data"]["website_url"]]]
+
 
         elif elem["__typename"] ==  "WAISTUIAgeGenderType":
             # {"__typename"=>"WAISTUIAgeGenderType", "waist_ui_type"=>"AGE_GENDER", "age_min"=>23, "age_max"=>53, "gender"=>"ANY",  "id"=>"V0FJU1RVSUFnZUdlbmRlclR5cGU6MjM1Mw==", "serialized_data"=>"{\"age_min\":23,\"age_max\":53,\"gender\":null}",}
@@ -174,19 +186,35 @@ def parse_one_waist_json(targeting):
             targets += [["Like", "Friend Likes Page"]]
             pass
         elif elem["__typename"] ==  "WAISTUIWorkEmployerType":
-            targets += ["Employer", elem["employer_name"]]
+            targets += [["Employer", elem["employer_name"]]]
         elif elem["__typename"] ==  "WAISTUIRelationshipType":
-            targets += ["Relationship Status", elem["relationship_status"]]
+            targets += [["Relationship Status", elem["relationship_status"]]]
         elif elem["__typename"] ==  "WAISTUIJobTitleType":
-            targets += ["Job Title", elem["job_title"]]
+            targets += [["Job Title", elem["job_title"]]]
+        elif elem["__typename"] ==  "WAISTUIActionableInsightsType": # appears to be stuff like "people who might be switching phone plans"
+            targets += [["Segment", "Actionable Insights: " +  elem["name"]]]
+        elif elem["__typename"] ==  "WAISTUIDPAType":
+            # audience_type {1, 2}
+            # audience_id ... could be anything
+            # matched_data: USUALLY
+            #    website_url {websites, None}
+            #    app_name {None}
+            #    event_time_string: {date, localized}
+            if elem["matched_data"] and elem["matched_data"]["website_url"]:
+                targets += [["Website", "Dynamic Product Ad"], ["Website Visit", elem["matched_data"]["website_url"]]]
+            elif elem["matched_data"] and elem["matched_data"]["app_name"]:
+                targets += [["Website", "Dynamic Product Ad"], ["App Usage", elem["matched_data"]["app_name"]]]
+            else:
+                targets += [["Offline Data", "Dynamic Product Ad"]]
+        elif elem["__typename"] ==  "WAISTUILocalReachType":
+            targets += [["Local Reach"]]
+
         else:
             print("Unknown WAIST type {}".format(elem["__typename"]))
 
             # no examples of these yet #unimplemented
-            # WAISTUIActionableInsightsType # appears to be stuff like "people who might be switching phone plans"
             # WAISTUIBrandedContentWithPageType
             # WAISTUICollaborativeAdType
-            # WAISTUIDPAType
             # WAISTUIRelationshipType
             # WAISTUIJobTitleType
 
