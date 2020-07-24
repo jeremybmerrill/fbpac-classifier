@@ -207,7 +207,7 @@ def parse_one_waist_json(targeting):
             else:
                 targets += [["Offline Data", "Dynamic Product Ad"]]
         elif elem["__typename"] ==  "WAISTUILocalReachType":
-            targets += [["Local Reach"]]
+            targets += [["Local Reach", None]]
 
         else:
             print("Unknown WAIST type {}".format(elem["__typename"]))
