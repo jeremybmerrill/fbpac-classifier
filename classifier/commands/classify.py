@@ -74,7 +74,7 @@ def classify(ctx, newest, lang):
                 "probability": probability
             }
             if record["political_probability"] > update["probability"] and record["political_probability"] >= 0.70 and update["probability"] < 0.70 and not record["suppressed"]:
-                print("refusing to downgrade probability of ad {}".format(record["id"]))
+                print("refusing to downgrade probability of ad {} / {}".format(record["id"], record["advertiser"]))
 
             updates.append(update)
             # out = "Classified {pid[id]} ({info[idx]} of {info[length]}) with {pid[probability]}"
@@ -90,5 +90,6 @@ def classify(ctx, newest, lang):
 
     job_query = f"insert into job_runs(start_time, end_time, success, job_id, created_at, updated_at) select '{start_time}' start_time, now() end_time, true success, jobs.id job_id, now() created_at, now() updated_at from jobs where name = 'fbpac-classifier';"
     DB.query(job_query)
-        
-    requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"classified {idx} ads, of which {political_count} were political"}), headers={"Content-Type": "application/json"})
+
+    # now that we've transitioned to AdObserver, no need to be so noisy        
+    # requests.post(environ.get("SLACKWH", 'example.com'), data=json.dumps({"text": f"classified {idx} ads, of which {political_count} were political"}), headers={"Content-Type": "application/json"})
