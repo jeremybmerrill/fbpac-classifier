@@ -67,8 +67,11 @@ def train_classifier(classifier, vectorizer, base, language):
     print("============ {} =============".format(base))
     with open(os.path.join(base, "seeds.json"), 'r') as json_posts:
         posts = json.load(json_posts)
-    data = [(item, 1.0) for item in posts['political']]
-    data.extend([(item, 0.0) for item in posts['not_political']])
+    if language == 'en-US':
+        data = [] # skip seeds for en-US.
+    else:
+        data = [(item, 1.0) for item in posts['political']]
+        data.extend([(item, 0.0) for item in posts['not_political']])
     print("num seeds: {}".format(len(data)))
     data.extend(load_ads_from_psql(language))
     print("num unique samples: {}".format(len(data)))
@@ -169,11 +172,12 @@ def load_ads_from_psql(lang):
       select
         html,
         targeting,
-        political::float / ((political::float + not_political::float) + 0.01) as score,
+        CASE WHEN (political > (not_political + 2)) THEN 1 ELSE political::float / ((political::float + not_political::float) + 0.01) END as score,
         suppressed
-      from ads
+      from fbpac_ads
         where lang = '{}'
-        and ((political + not_political) > 0 or suppressed = true)
+        and ((political + not_political) >= 1 or suppressed = true)
+      order by created_at desc
       limit 100000;
      """.format(text(lang)))
 
